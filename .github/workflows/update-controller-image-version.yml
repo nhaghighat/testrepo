@@ -49,6 +49,8 @@ jobs:
     # NOTE: In github action expressions you need to use single quotes.
     if: ${{ github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/') }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write    
     steps:
       - uses: actions/checkout@v2
 
