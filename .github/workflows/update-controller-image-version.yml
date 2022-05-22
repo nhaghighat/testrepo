@@ -27,12 +27,15 @@ jobs:
         id: release_version
         run: |
           export RELEASE_VERSION=$(echo ${{ github.head_ref }} | sed 's/release\///g')
-          echo ::set-output name=release_version::$RELEASE_VERSION
+          echo ::set-output name=release_version::$RELEASE_VERSION        
 
       - name: Build release
         id: build
         run: |
           TAGNAME=${RELEASE_VERSION} make -C ./services/orchest-controller manifestgen
+        env:
+          RELEASE_VERSION: ${{steps.release_version.outputs.release_version}}  
+
       - uses: actions/upload-artifact@v3
         with:
           name: manifests
