@@ -1111,7 +1111,7 @@ spec:
       serviceAccountName: orchest-controller
       containers:
       - name: orchest-controller
-        image: "docker.io/orchest/orchest-controller:latest"
+        image: "docker.io/orchest/orchest-controller:heloo"
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
