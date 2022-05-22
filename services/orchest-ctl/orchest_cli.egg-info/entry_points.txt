@@ -1,0 +1,2 @@
+[console_scripts]
+orchest = app.cli.main:__entrypoint
