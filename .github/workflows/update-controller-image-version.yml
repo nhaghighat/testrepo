@@ -42,7 +42,6 @@ jobs:
         with:
           name: manifests
           path: ./services/orchest-controller/deploy/k8s/orchest-controller.yaml
-          retention-days: 1
 
   trigger_release:
     needs: [build_manifests]
@@ -52,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v3
 
       - name: Create new release with auto-generated release notes
         uses: actions/github-script@v5.1.0
