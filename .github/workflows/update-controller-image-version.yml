@@ -5,7 +5,7 @@ name: Release Assets
 on:
   pull_request:
     branches:
-      - master
+      - main
     types: [closed]
 
 jobs:
