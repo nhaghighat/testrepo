@@ -1,47 +1,41 @@
-name: Update controller image version
+name: Release Assets
 
+# Only trigger when a PR to master is closed (this can also mean closed
+# but not merged).
 on:
   pull_request:
     branches:
       - master
-    types: [opened, reopened]
+    types: [closed]
 
 jobs:
-  update_controller_image_version:
-    if: ${{ startsWith(github.head_ref, 'release/') }}
+  release_assets:
+    # On a successful merge of a release branch into the master branch.
+    # NOTE: In github action expressions you need to use single quotes.
+    if: ${{ github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/') }}
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Install yq dependency
+      - name: Install dependencies
         run: |
-          sudo wget https://github.com/mikefarah/yq/releases/download/v4.25.1/yq_linux_amd64 \
-            -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
-
+          sudo apt-get update
+          sudo apt-get install -y make
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
       # Can't do string manipulation in GHA expressions yet.
       - name: Get release version
         id: release_version
         run: |
-          export release_version=$(echo ${{ github.head_ref }} | sed 's/release\///g')
-          echo ::set-output name=release_version::$release_version
+          export RELEASE_VERSION=$(echo ${{ github.head_ref }} | sed 's/release\///g')
 
-      - name: Update controller image version
+      - name: Build release
+        id: build
         run: |
-          export IMAGE_NAME="orchest/orchest-controller:${RELEASE_VERSION}"
-          echo "Using controller: ${IMAGE_NAME}"
-          yq -i '.spec.template.spec.containers[0].image = strenv(IMAGE_NAME)' \
-            services/orchest-controller/deploy-controller/deployment.yaml
-        env:
-          RELEASE_VERSION: ${{steps.release_version.outputs.release_version}}
-
-      - name: Commit and push changes
-        # Note: --allow-empty so that a pull reopen or, for whatever
-        # reason, doing the same release again will not lead to issues.
-        run: |
-          git config --global user.name "orchest"
-          git config --global user.email "support@orchest.io"
-          git commit -a -m "Update controller image version (automated)" --allow-empty
-          git push
+          TAGNAME=$(RELEASE_VERSION) make -C ./services/orchest-controller
+      - uses: actions/upload-artifact@v3
+        with:
+          name: manifests
+          path: ./services/orchest-controller/deploy/k8s/orchest-controller.yaml
+          retention-days: 1
