@@ -57,7 +57,7 @@ jobs:
       - name: Create new release with auto-generated release notes
         uses: actions/github-script@v5.1.0
         with:
-          github-token: ${{ secrets.WORKFLOW_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.request(`POST /repos/${{ github.repository }}/releases`, {
               tag_name: "${{ github.head_ref }}".replace("release/", ""),
