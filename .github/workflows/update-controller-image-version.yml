@@ -15,20 +15,6 @@ jobs:
     if: ${{ github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Create new release with auto-generated release notes
-        uses: actions/github-script@v5.1.0
-        with:
-          github-token: ${{ secrets.WORKFLOW_TOKEN }}
-          script: |
-            await github.request(`POST /repos/${{ github.repository }}/releases`, {
-              tag_name: "${{ github.head_ref }}".replace("release/", ""),
-              generate_release_notes: true
-            });
-
-      - uses: actions/checkout@v2
-
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -41,11 +27,12 @@ jobs:
         id: release_version
         run: |
           export RELEASE_VERSION=$(echo ${{ github.head_ref }} | sed 's/release\///g')
+          echo ::set-output name=release_version::$RELEASE_VERSION
 
       - name: Build release
         id: build
         run: |
-          TAGNAME=$(RELEASE_VERSION) make -C ./services/orchest-controller manifestgen
+          TAGNAME=${RELEASE_VERSION} make -C ./services/orchest-controller manifestgen
       - uses: actions/upload-artifact@v3
         with:
           name: manifests
