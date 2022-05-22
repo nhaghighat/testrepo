@@ -45,7 +45,7 @@ jobs:
           retention-days: 1
 
   trigger_release:
-    needs: [release_assets]
+    needs: [build_manifests]
     # On a successful merge of a release branch into the master branch.
     # NOTE: In github action expressions you need to use single quotes.
     if: ${{ github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/') }}
