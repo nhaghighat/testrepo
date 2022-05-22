@@ -59,7 +59,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            await github.request(`POST /repos/${{ github.repository }}/releases`, {
-              tag_name: "${{ github.head_ref }}".replace("release/", ""),
-              generate_release_notes: true
-            });          
+            gh release create hello --generate-notes --target manifests/*
