@@ -17,6 +17,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Create new release with auto-generated release notes
+        uses: actions/github-script@v5.1.0
+        with:
+          github-token: ${{ secrets.WORKFLOW_TOKEN }}
+          script: |
+            await github.request(`POST /repos/${{ github.repository }}/releases`, {
+              tag_name: "${{ github.head_ref }}".replace("release/", ""),
+              generate_release_notes: true
+            });
+
+      - uses: actions/checkout@v2
+
       - name: Install dependencies
         run: |
           sudo apt-get update
