@@ -64,4 +64,4 @@ jobs:
           RELEASE_VERSION: ${{ needs.build_manifests.outputs.release_version }}          
           DEBUG: api
         run: |
-          gh release create ${RELEASE_VERSION} --generate-notes
+          gh release create ${RELEASE_VERSION} --generate-notes ./manifests
